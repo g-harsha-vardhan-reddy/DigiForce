@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>DigiForensics Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        /* ------------------------------------------------
+           NAVBAR
+        ------------------------------------------------ */
+
+        .navbar {
+            background: #111827;
+            color: white;
+            padding: 20px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .nav-text {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* ------------------------------------------------
+           CONTAINER
+        ------------------------------------------------ */
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 30px auto;
+        }
+
+        /* ------------------------------------------------
+           CARDS
+        ------------------------------------------------ */
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 5px 20px
+                rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+
+        h3 {
+            color: #374151;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* ------------------------------------------------
+           BUTTONS
+        ------------------------------------------------ */
+
+        .button-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            text-decoration: none;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .button-dark {
+            background: #111827;
+            color: white;
+        }
+
+        .button-light {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .button-dark:hover {
+            background: #374151;
+        }
+
+        /* ------------------------------------------------
+           ORIGINAL IMAGE
+        ------------------------------------------------ */
+
+        .original-wrapper {
+            display: grid;
+            grid-template-columns:
+                minmax(250px, 1fr)
+                minmax(250px, 1fr);
+
+            gap: 30px;
+            align-items: center;
+        }
+
+        .original-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #f3f4f6;
+            padding: 10px;
+        }
+
+        /* ------------------------------------------------
+           SCORE HERO
+        ------------------------------------------------ */
+
+        .score-hero {
+            display: grid;
+            grid-template-columns:
+                1fr 1.5fr;
+
+            gap: 25px;
+            align-items: center;
+        }
+
+        .score-circle {
+            text-align: center;
+            padding: 30px;
+            background: #f9fafb;
+            border-radius: 15px;
+        }
+
+        .score-number {
+            font-size: 58px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .score-status {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .score-description {
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        /* ------------------------------------------------
+           INDICATOR CARDS
+        ------------------------------------------------ */
+
+        .grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(220px, 1fr)
+                );
+
+            gap: 18px;
+        }
+
+        .metric-card {
+            background: #f9fafb;
+            border-radius: 13px;
+            padding: 20px;
+        }
+
+        .metric-name {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .metric-score {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .progress {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #111827;
+            border-radius: 10px;
+        }
+
+        /* ------------------------------------------------
+           RESULT IMAGES
+        ------------------------------------------------ */
+
+        .result-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 13px;
+        }
+
+        .result-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            background: #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .result-title {
+            font-weight: bold;
+            font-size: 17px;
+            margin-bottom: 12px;
+        }
+
+        /* ------------------------------------------------
+           CHARTS
+        ------------------------------------------------ */
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            min-height: 320px;
+        }
+
+        /* ------------------------------------------------
+           TABLE
+        ------------------------------------------------ */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .score-table th,
+        .score-table td {
+            padding: 13px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .score-table th {
+            background: #f9fafb;
+        }
+
+        /* ------------------------------------------------
+           NOTICE
+        ------------------------------------------------ */
+
+        .notice {
+            background: #f9fafb;
+            border-left: 5px solid #6b7280;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        /* ------------------------------------------------
+           RESPONSIVE
+        ------------------------------------------------ */
+
+        @media (max-width: 800px) {
+
+            .original-wrapper,
+            .score-hero {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                padding: 18px 20px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+====================================================== -->
+
+<div class="navbar">
+
+    <div class="brand">
+        DigiForensics
+    </div>
+
+    <div class="nav-text">
+        Digital Image Forensics System
+    </div>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- =================================================
+         HEADER
+    ================================================== -->
+
+    <div class="card">
+
+        <h1>
+            Digital Image Analysis Dashboard
+        </h1>
+
+        <p>
+            Multi-stage Digital Image Processing and
+            heuristic forensic analysis.
+        </p>
+
+    </div>
+
+
+    <!-- =================================================
+         ORIGINAL IMAGE
+    ================================================== -->
+
+    <div class="card">
+
+        <div class="original-wrapper">
+
+            <div>
+
+                <h2>
+                    Original Image
+                </h2>
+
+                <p>
+                    Uploaded image selected for analysis.
+                </p>
+
+                <div class="button-row">
+
+                    <a
+                        href="{% url 'home' %}"
+                        class="button button-light"
+                    >
+                        ← Back
+                    </a>
+
+                    <a
+                        href="{% url 'download_report' image.id %}"
+                        class="button button-dark"
+                    >
+                        Download PDF Report
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div>
+
+                <img
+                    src="{{ image.image.url }}"
+                    class="original-image"
+                    alt="Original Image"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         FORENSIC SCORE
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Forensic Assessment
+        </h2>
+
+        <div class="score-hero">
+
+
+            <!-- SCORE -->
+
+            <div class="score-circle">
+
+                <div class="metric-name">
+                    OVERALL HEURISTIC SCORE
+                </div>
+
+                <div class="score-number">
+                    {{ scores.final_score }}
+                </div>
+
+                <div>
+                    out of 100
+                </div>
+
+                <div class="score-status">
+                    {{ scores.status }}
+                </div>
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="score-description">
+
+                <h3>
+                    Interpretation
+                </h3>
+
+                {% if scores.final_score < 35 %}
+
+                    <p>
+                        The measured indicators fall within
+                        the project's lower heuristic range.
+                        The image is classified as
+                        <strong>LIKELY ORIGINAL</strong>.
+                    </p>
+
+                {% elif scores.final_score < 65 %}
+
+                    <p>
+                        The measured indicators fall within
+                        the project's intermediate heuristic
+                        range. The result is classified as
+                        <strong>UNCERTAIN</strong>.
+                    </p>
+
+                {% else %}
+
+                    <p>
+                        The measured indicators fall within
+                        the project's higher heuristic range.
+                        The result is classified as
+                        <strong>POSSIBLE TAMPERING</strong>.
+                    </p>
+
+                {% endif %}
+
+                <p>
+                    This is a heuristic indicator and should
+                    not be interpreted as definitive proof
+                    of manipulation.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         INDICATOR BREAKDOWN
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Indicator Breakdown
+        </h2>
+
+        <div class="grid">
+
+
+            <!-- ELA -->
+
+            <div class="metric-card">
+
+                <div class="metric-name">
+                    ELA
+                </div>
+
+                <div class="metric-score">
+                    {{ scores.ela_score }}
+                </div>
+
+                <div class="metric-name">
+                    Weight: 35%
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ scores.ela_score }}%;"
+                    ></div>
+
+                </div>
+
+                <p>
+                    JPEG recompression difference indicator.
+                </p>
+
+            </div>
+
+
+            <!-- FREQUENCY -->
+
+            <div class="metric-card">
+
+                <div class="metric-name">
+                    Frequency Analysis
+                </div>
+
+                <div class="metric-score">
+                    {{ scores.frequency_score }}
+                </div>
+
+                <div class="metric-name">
+                    Weight: 25%
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ scores.frequency_score }}%;"
+                    ></div>
+
+                </div>
+
+                <p>
+                    High-frequency energy indicator.
+                </p>
+
+            </div>
+
+
+            <!-- EDGE -->
+
+            <div class="metric-card">
+
+                <div class="metric-name">
+                    Edge Analysis
+                </div>
+
+                <div class="metric-score">
+                    {{ scores.edge_score }}
+                </div>
+
+                <div class="metric-name">
+                    Weight: 15%
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ scores.edge_score }}%;"
+                    ></div>
+
+                </div>
+
+                <p>
+                    Based on detected edge density.
+                </p>
+
+            </div>
+
+
+            <!-- NOISE -->
+
+            <div class="metric-card">
+
+                <div class="metric-name">
+                    Noise Analysis
+                </div>
+
+                <div class="metric-score">
+                    {{ scores.noise_score }}
+                </div>
+
+                <div class="metric-name">
+                    Weight: 15%
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ scores.noise_score }}%;"
+                    ></div>
+
+                </div>
+
+                <p>
+                    Measures high-frequency image variation.
+                </p>
+
+            </div>
+
+
+            <!-- HISTOGRAM -->
+
+            <div class="metric-card">
+
+                <div class="metric-name">
+                    Histogram Analysis
+                </div>
+
+                <div class="metric-score">
+                    {{ scores.histogram_score }}
+                </div>
+
+                <div class="metric-name">
+                    Supporting Feature
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ scores.histogram_score }}%;"
+                    ></div>
+
+                </div>
+
+                <p>
+                    Based on grayscale histogram entropy.
+                </p>
+
+            </div>
+
+
+            <!-- COPY MOVE -->
+
+            <div class="metric-card">
+
+                <div class="metric-name">
+                    Copy-Move Detection
+                </div>
+
+                <div class="metric-score">
+                    {{ scores.copy_move_score }}
+                </div>
+
+                <div class="metric-name">
+                    Independent Evidence
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ scores.copy_move_score }}%;"
+                    ></div>
+
+                </div>
+
+                <p>
+                    Searches for repeated image regions
+                    appearing at different locations.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SCORE CHART
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Indicator Comparison
+        </h2>
+
+        <div class="chart-container">
+
+            <canvas
+                id="scoreChart"
+            ></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         CORE DIP
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Core DIP Processing
+        </h2>
+
+        <div class="grid">
+
+
+            <!-- Grayscale -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Grayscale
+                </div>
+
+                <img
+                    src="{{ results.gray }}"
+                    alt="Grayscale"
+                >
+
+                <p>
+                    Conversion to single-channel
+                    intensity representation.
+                </p>
+
+            </div>
+
+
+            <!-- Gaussian -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Gaussian Filter
+                </div>
+
+                <img
+                    src="{{ results.gaussian }}"
+                    alt="Gaussian Filter"
+                >
+
+                <p>
+                    Image smoothing and noise reduction.
+                </p>
+
+            </div>
+
+
+            <!-- Median -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Median Filter
+                </div>
+
+                <img
+                    src="{{ results.median }}"
+                    alt="Median Filter"
+                >
+
+                <p>
+                    Useful for reducing salt-and-pepper noise.
+                </p>
+
+            </div>
+
+
+            <!-- Sobel -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Sobel Edge Detection
+                </div>
+
+                <img
+                    src="{{ results.sobel }}"
+                    alt="Sobel"
+                >
+
+                <p>
+                    Detects directional intensity
+                    changes and edges.
+                </p>
+
+            </div>
+
+
+            <!-- Canny -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Canny Edge Detection
+                </div>
+
+                <img
+                    src="{{ results.canny }}"
+                    alt="Canny"
+                >
+
+                <p>
+                    Produces a refined binary
+                    edge representation.
+                </p>
+
+            </div>
+
+
+            <!-- Morphology -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Morphological Processing
+                </div>
+
+                <img
+                    src="{{ results.morphological }}"
+                    alt="Morphological"
+                >
+
+                <p>
+                    Refines and connects structures
+                    within the edge map.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         ADVANCED DIP
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Frequency & Forensic Processing
+        </h2>
+
+        <div class="grid">
+
+
+            <!-- DFT -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    DFT Frequency Spectrum
+                </div>
+
+                <img
+                    src="{{ advanced_results.dft_spectrum }}"
+                    alt="DFT Spectrum"
+                >
+
+                <p>
+                    Frequency-domain representation
+                    of the image.
+                </p>
+
+            </div>
+
+
+            <!-- Low Pass -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Low-Pass Filter
+                </div>
+
+                <img
+                    src="{{ advanced_results.low_pass }}"
+                    alt="Low Pass"
+                >
+
+                <p>
+                    Preserves lower-frequency
+                    image components.
+                </p>
+
+            </div>
+
+
+            <!-- High Pass -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    High-Pass Filter
+                </div>
+
+                <img
+                    src="{{ advanced_results.high_pass }}"
+                    alt="High Pass"
+                >
+
+                <p>
+                    Highlights high-frequency
+                    details and edges.
+                </p>
+
+            </div>
+
+
+            <!-- ELA -->
+
+            <div class="result-card">
+
+                <div class="result-title">
+                    Error Level Analysis
+                </div>
+
+                <img
+                    src="{{ advanced_results.ela }}"
+                    alt="ELA"
+                >
+
+                <p>
+                    Shows differences resulting
+                    from JPEG recompression.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         HISTOGRAM
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Grayscale Histogram
+        </h2>
+
+        <p>
+            Pixel intensity distribution from 0 to 255.
+        </p>
+
+        <div class="chart-container">
+
+            <canvas
+                id="histogramChart"
+            ></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         FORENSIC SCORE FORMULA
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Forensic Score Formula
+        </h2>
+
+        <p>
+            The baseline score is calculated from multiple
+            image-processing indicators.
+        </p>
+
+
+        <div class="table-wrapper">
+
+            <table class="score-table">
+
+                <tr>
+
+                    <th>
+                        Indicator
+                    </th>
+
+                    <th>
+                        Score
+                    </th>
+
+                    <th>
+                        Weight / Role
+                    </th>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        ELA
+                    </td>
+
+                    <td>
+                        {{ scores.ela_score }}
+                    </td>
+
+                    <td>
+                        35%
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Frequency Analysis
+                    </td>
+
+                    <td>
+                        {{ scores.frequency_score }}
+                    </td>
+
+                    <td>
+                        25%
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Edge Analysis
+                    </td>
+
+                    <td>
+                        {{ scores.edge_score }}
+                    </td>
+
+                    <td>
+                        15%
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Noise Analysis
+                    </td>
+
+                    <td>
+                        {{ scores.noise_score }}
+                    </td>
+
+                    <td>
+                        15%
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Histogram Analysis
+                    </td>
+
+                    <td>
+                        {{ scores.histogram_score }}
+                    </td>
+
+                    <td>
+                        10% Supporting Feature
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Copy-Move Detection
+                    </td>
+
+                    <td>
+                        {{ scores.copy_move_score }}
+                    </td>
+
+                    <td>
+                        Independent Evidence
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>Baseline Score</strong>
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ scores.baseline_score }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        Weighted DIP Score
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <strong>Final Score</strong>
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ scores.final_score }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        Maximum Evidence Score
+                    </td>
+
+                </tr>
+
+
+            </table>
+
+        </div>
+
+
+        <p style="margin-top:20px;">
+
+            <strong>Baseline Score =</strong>
+
+            (ELA × 0.35) +
+            (Frequency × 0.25) +
+            (Edge × 0.15) +
+            (Noise × 0.15) +
+            (Histogram × 0.10)
+
+        </p>
+
+
+        <p>
+
+            <strong>Final Score =</strong>
+
+            Maximum of Baseline Score and Copy-Move Score.
+
+        </p>
+
+
+        <p>
+
+            A Copy-Move Score of 60 or above is treated as
+            strong independent evidence for the
+            <strong>POSSIBLE TAMPERING</strong> category.
+
+        </p>
+
+    </div>
+
+
+    <!-- =================================================
+         INTERPRETATION NOTICE
+    ================================================== -->
+
+    <div class="card">
+
+        <div class="notice">
+
+            <h3>
+                Interpretation Notice
+            </h3>
+
+            <p>
+                DigiForensics uses multiple Digital Image
+                Processing measurements to produce a
+                heuristic forensic score.
+            </p>
+
+            <p>
+                Copy-Move Detection searches for repeated
+                image regions occurring at different
+                locations. A strong result can increase
+                the forensic assessment.
+            </p>
+
+            <p>
+                The score is not a definitive determination
+                of whether an image was manipulated. Image
+                format, compression, resizing, camera
+                processing, image content and other factors
+                can influence the measurements.
+            </p>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script>
+
+
+    /* -----------------------------------------------------
+       SCORE CHART
+    ----------------------------------------------------- */
+
+    const scoreLabels = [
+
+        "ELA",
+
+        "Frequency",
+
+        "Edge",
+
+        "Noise",
+
+        "Histogram",
+
+        "Copy-Move"
+
+    ];
+
+
+    const scoreValues = [
+
+        {{ scores.ela_score }},
+
+        {{ scores.frequency_score }},
+
+        {{ scores.edge_score }},
+
+        {{ scores.noise_score }},
+
+        {{ scores.histogram_score }},
+
+        {{ scores.copy_move_score }}
+
+    ];
+
+
+    new Chart(
+
+        document.getElementById(
+            "scoreChart"
+        ),
+
+        {
+
+            type: "bar",
+
+            data: {
+
+                labels: scoreLabels,
+
+                datasets: [
+
+                    {
+
+                        label: "Score / 100",
+
+                        data: scoreValues,
+
+                        borderWidth: 1
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        max: 100,
+
+                        title: {
+
+                            display: true,
+
+                            text: "Score"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+
+    /* -----------------------------------------------------
+       HISTOGRAM CHART
+    ----------------------------------------------------- */
+
+    const histogram =
+        {{ histogram|safe }};
+
+
+    const histogramLabels =
+        Array.from(
+
+            { length: 256 },
+
+            (_, index) => index
+
+        );
+
+
+    new Chart(
+
+        document.getElementById(
+            "histogramChart"
+        ),
+
+        {
+
+            type: "line",
+
+            data: {
+
+                labels: histogramLabels,
+
+                datasets: [
+
+                    {
+
+                        label: "Pixel Frequency",
+
+                        data: histogram,
+
+                        borderWidth: 1,
+
+                        pointRadius: 0,
+
+                        fill: false
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    x: {
+
+                        title: {
+
+                            display: true,
+
+                            text: "Pixel Intensity"
+
+                        }
+
+                    },
+
+                    y: {
+
+                        title: {
+
+                            display: true,
+
+                            text: "Frequency"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+</script>
+
+
+</body>
+
+</html>
