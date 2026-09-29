@@ -9,6 +9,7 @@ import os
 
 import dj_database_url
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -68,7 +69,7 @@ MIDDLEWARE = [
 
 
 # =========================================================
-# URLS
+# URL CONFIGURATION
 # =========================================================
 
 ROOT_URLCONF = "config.urls"
@@ -160,18 +161,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # =========================================================
-# MEDIA / CLOUDINARY STORAGE
+# MEDIA FILES / CLOUDINARY
 # =========================================================
 
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
-
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
-}
 
 
 STORAGES = {
